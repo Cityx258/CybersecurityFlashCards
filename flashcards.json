@@ -1,0 +1,267 @@
+[
+  {
+    "id": "asymmetric_signature",
+    "question": "How does a digital signature work, and what does it guarantee?",
+    "answer": "The sender hashes the message, then encrypts the hash with their PRIVATE key → this is the signature.\nThe receiver decrypts the signature with the sender's PUBLIC key and compares it to their own hash of the message.\nGuarantees: authenticity (only the private key owner could sign it) and integrity (any change breaks the hash)."
+  },
+  {
+    "id": "auth_factors",
+    "question": "What are the three categories of authentication factors? Give an example of each.",
+    "answer": "1. Something you KNOW – password, PIN, security question.\n2. Something you HAVE – hardware token, smartphone (TOTP app), smart card.\n3. Something you ARE – fingerprint, face ID, retina scan (biometrics).\nMFA combines two or more of these categories."
+  },
+  {
+    "id": "cert_purpose",
+    "question": "What is a digital certificate and why is a Certificate Authority (CA) needed?",
+    "answer": "A digital certificate binds a public key to an identity (e.g. a domain name).\nA CA is a trusted third party that signs certificates, proving the public key really belongs to that identity.\nWithout a CA, anyone could create a fake certificate for any domain (man-in-the-middle)."
+  },
+  {
+    "id": "cookie_creation_php",
+    "question": "What PHP function creates a cookie? Give the basic syntax with an example.",
+    "answer": "The setcookie() function creates a cookie.\nBasic syntax: setcookie('name', 'value', expiration);\nExample: setcookie('my_cookie', '123456', time() + 3600);\nThis creates a cookie named 'my_cookie' with value '123456' that expires in 1 hour.\ntime() returns the current timestamp; you add the desired number of seconds."
+  },
+  {
+    "id": "cookie_expiration_calculs",
+    "question": "How many seconds represent 1 hour, 1 day, 1 week, and 1 year for a cookie expiration?",
+    "answer": "1 hour  : 60 × 60 = 3,600 seconds\n1 day   : 3,600 × 24 = 86,400 seconds\n1 week  : 86,400 × 7 = 604,800 seconds\n1 month : 604,800 × 4 = 2,419,200 seconds\n1 year  : 2,419,200 × 12 ≈ 29,030,400 seconds"
+  },
+  {
+    "id": "cookie_introduction",
+    "question": "What is a cookie (fichier témoin) and where is it physically stored?",
+    "answer": "A cookie is information the server wants to keep persistent, but stored on the client's machine.\nIt is physically stored on the client's computer in a space entirely managed by the browser.\nThe exchange happens directly via the HTTP protocol — no extra client-side programming is needed."
+  },
+  {
+    "id": "cookie_lecture_php",
+    "question": "How do you read a cookie in PHP? Why check for its existence before reading it?",
+    "answer": "Use the $_COOKIE superglobal (an associative array):\n  if (isset($_COOKIE['my_cookie'])) {\n      $value = $_COOKIE['my_cookie'];\n  }\nYou must check with isset() because the cookie may not exist (first visit, expired, etc.) — reading a missing key would cause an error.\nYou can only read cookies that belong to the current domain."
+  },
+  {
+    "id": "cookie_param_domain_secure",
+    "question": "What do the 'domain' and 'secure' parameters do in setcookie()?",
+    "answer": "domain: restricts cookie access to the specified domain. A cookie CANNOT be read by a different domain. Default: current domain.\nsecure: restricts sending the cookie only over an HTTPS (SSL) connection. Default: false. Very useful for authentication cookies."
+  },
+  {
+    "id": "cookie_param_path",
+    "question": "What does the 'path' parameter do in setcookie()? What is the default value?",
+    "answer": "The path parameter restricts which URL paths on the domain can access the cookie.\nDefault: '/' (root) — the entire domain can access the cookie.\nExample: setting '/bob/' means the cookie is only accessible under the '/bob/' directory of the domain."
+  },
+  {
+    "id": "cookie_remember_me",
+    "question": "How do you correctly implement a 'Remember Me' feature using cookies?",
+    "answer": "Creation:\n1. User logs in and checks 'remember me'.\n2. Generate an authentication token stored in the database with NO link to the user's actual credentials.\n3. Send the token to the client in a secure cookie (HTTPS + HTTP-ONLY).\n\nVerification:\n1. Check if the token cookie exists.\n2. If yes, skip the login screen and go directly to the auth script.\n3. Verify the token against the database.\n4. If valid → generate a NEW token, save it, send it to the client. If invalid → destroy the cookie and redirect to login."
+  },
+  {
+    "id": "cookie_securite_bonnes_pratiques",
+    "question": "What are the three important security best practices for using cookies?",
+    "answer": "1. NEVER store user information (username, password) in a cookie.\n2. NEVER serialize a data structure in a cookie (risk of arbitrary code injection on deserialization).\n3. Always create cookies with the HTTP-ONLY flag to prevent session hijacking (blocks JavaScript from accessing the cookie)."
+  },
+  {
+    "id": "cookie_session_vs_persistent",
+    "question": "What is the difference between a session cookie and a persistent cookie? How do you create a session cookie?",
+    "answer": "Session cookie: expires when the browser is closed. Created by not specifying an expiration, or setting it to 0: setcookie('name', 'value', 0);\nPersistent cookie: survives browser closure because it has a future expiration date: setcookie('name', 'value', time() + 3600);"
+  },
+  {
+    "id": "cookie_suppression",
+    "question": "How do you delete a cookie from the server in PHP? Why use '1' instead of time() - 3600?",
+    "answer": "You cannot directly delete the file (it lives on the client). Instead, you 'recreate' the cookie with a past expiration and an empty value:\n  setcookie('my_cookie', '', 1);\nYou use '1' (a guaranteed past timestamp) rather than time() - 3600 because time() depends on the server's clock. If the server clock is wrong, the deletion will fail. '1' always ensures the cookie is expired."
+  },
+  {
+    "id": "cookie_transmission",
+    "question": "How is a cookie transmitted between the server and the client (browser)?",
+    "answer": "1. The server adds a 'Set-Cookie' directive to the HTTP response header (RFC 6265).\n2. The browser receives the response and creates a physical file on the client machine with the cookie value.\n3. On all future requests to the same domain/path, the browser automatically attaches the cookies to the HTTP request header.\nBoth the server and client can then access the cookies."
+  },
+  {
+    "id": "cookies_flags",
+    "question": "What do the cookie flags HttpOnly and Secure do?",
+    "answer": "HttpOnly: prevents JavaScript (document.cookie) from reading the cookie — mitigates XSS session theft.\nSecure: cookie is only sent over HTTPS connections — prevents interception over plain HTTP."
+  },
+  {
+    "id": "cookies_purpose",
+    "question": "What is an HTTP cookie and what are its main uses?",
+    "answer": "A cookie is a small piece of data stored by the browser and sent with each HTTP request to the same domain.\nMain uses: session management (keep user logged in), personalization, and tracking."
+  },
+  {
+    "id": "crypto_hash",
+    "question": "What is a cryptographic hash function and what properties must it have?",
+    "answer": "A function that maps any input to a fixed-size digest.\nRequired properties:\n- Deterministic (same input → same output)\n- One-way (cannot reverse the digest to get the input)\n- Collision-resistant (hard to find two inputs with the same hash)\n- Avalanche effect (small input change → completely different digest)"
+  },
+  {
+    "id": "crypto_symmetric_vs_asymmetric",
+    "question": "What is the key difference between symmetric and asymmetric encryption?",
+    "answer": "Symmetric: same key is used to encrypt and decrypt (e.g. AES). Fast but requires secure key exchange.\nAsymmetric: uses a public key to encrypt and a private key to decrypt (e.g. RSA). Slower but solves the key distribution problem."
+  },
+  {
+    "id": "cybersec_actif_risque",
+    "question": "Define the terms 'asset' (actif) and 'risk' in cybersecurity.",
+    "answer": "Asset: any element, device, service, or data that has value to an organization. These are the targets of attacks.\nRisk: the probability of losses or damages associated with threats and vulnerabilities. Depends on the type of system, existing vulnerabilities, value of assets, and difficulty of exploitation."
+  },
+  {
+    "id": "cybersec_auth_vs_authz",
+    "question": "What is the difference between authentication and authorization?",
+    "answer": "Authentication: proving who you are (password, fingerprint, smart card). It is about verifying identity.\nAuthorization: controlling what you are allowed to do once authenticated. Ensures only authorized users can access certain resources or perform certain actions."
+  },
+  {
+    "id": "cybersec_breach_stats",
+    "question": "Name at least four key statistics about security breaches covered in the course.",
+    "answer": "- 2.6 billion records compromised in 2021-2022.\n- Average cost of a breach: $4.45 million.\n- 83% of breaches involve internal actors.\n- Average of 204 days to identify a breach.\n- Average of 73 days to fix a breach.\n- 95% of breaches have a monetary motivation.\n- In 2022, 5.5 billion malware attacks were recorded."
+  },
+  {
+    "id": "cybersec_cia_triad",
+    "question": "What are the three pillars of the CIA triad in cybersecurity, and what does each mean?",
+    "answer": "Confidentiality – only authorized users can access data.\nIntegrity – data cannot be altered without detection.\nAvailability – systems and data are accessible when needed."
+  },
+  {
+    "id": "cybersec_controle_niveaux",
+    "question": "At what levels do security controls apply? Give examples for each.",
+    "answer": "- Cryptography: encryption, hashing, certification, digital signature, secure protocols.\n- Application: protection against injection, anti-XSS measures, session hijacking prevention.\n- Backup: application, database, server backups.\n- Infrastructure: operating systems, network protocols.\n- Policy: user training, legislation."
+  },
+  {
+    "id": "cybersec_controle_proactif_reactif",
+    "question": "What is a proactive vs. reactive security control? Why do you need both?",
+    "answer": "Proactive control: reduces the risk of a security incident occurring by applying mitigation mechanisms (defense).\nReactive control: reduces the impact of damage after a successful attack (contingency/recovery).\nWhy both: you cannot guarantee everything is protected (proactive alone is insufficient). You also cannot only react (the system would always be in recovery mode). A balance of both is necessary."
+  },
+  {
+    "id": "cybersec_cve",
+    "question": "What is the CVE, who maintains it, and why are vulnerabilities listed publicly?",
+    "answer": "CVE = Common Vulnerabilities and Exposures. A public database maintained by MITRE (linked to the US Department of Defense).\nReasons for public listing:\n- Transparency: encourages responsible disclosure and collaboration.\n- Coordination: helps organizations coordinate patches using a common ID.\n- Standardization: provides a common terminology for the security community.\n- Education: raises awareness among users and administrators."
+  },
+  {
+    "id": "cybersec_definition",
+    "question": "How is cybersecurity (information security) defined in the course?",
+    "answer": "A set of physical, logical, and administrative security measures, and emergency measures, put in place within an organization to ensure the protection of its IT assets, the confidentiality of its information system data, and the continuity of service."
+  },
+  {
+    "id": "cybersec_exploit_payload",
+    "question": "What is an exploit and what is a payload? Give examples of payload effects.",
+    "answer": "Exploit: an automated exploitation recipe for a vulnerability, packaged as a program (often provided as source code). Even 'script-kiddies' (people with no technical expertise) can use exploits.\nPayload: the code sent during exploitation to be executed on the compromised system.\nPossible effects: privilege escalation, opening a command prompt, denial of service, backdoor injection, bypassing security mechanisms."
+  },
+  {
+    "id": "cybersec_intrusion_attaque",
+    "question": "What is the difference between an intrusion and an attack?",
+    "answer": "Intrusion: the act of gaining access to a computer system without the required authorization. Once inside, the attacker can launch various attacks depending on their privileges.\nAttack: the act of exploiting a vulnerability. Does not always require prior intrusion (e.g. a distributed attack). Generally causes harm to one of the CIA security objectives."
+  },
+  {
+    "id": "cybersec_menace_formule",
+    "question": "What is the formula for a threat in cybersecurity? Why does a public web app always have threats?",
+    "answer": "THREAT = VULNERABILITY + ATTACKER\nA threat is a vulnerability in a system combined with the potential presence of an attacker.\nFor a public web application, we always assume potential attackers exist (bots or individuals). So any vulnerability automatically becomes a threat."
+  },
+  {
+    "id": "cybersec_non_repudiation",
+    "question": "What are accountability and non-repudiation in cybersecurity? What mechanisms enforce them?",
+    "answer": "Accountability and non-repudiation: the ability to attribute responsibility for an action and prevent the entity from denying they performed it.\nMechanisms: logging (journalisation) and electronic signatures — they provide indisputable proof of actions taken."
+  },
+  {
+    "id": "cybersec_objectifs_auxiliaires",
+    "question": "Name the auxiliary security objectives of cybersecurity (beyond the CIA triad).",
+    "answer": "1. Authentication – proving the identity of an entity.\n2. Authorization – controlling access privileges once authenticated.\n3. Communications security – confidentiality and integrity in transit (SSL/TLS).\n4. Operational security – processes, policies, monitoring, incident response.\n5. Accountability and non-repudiation – attributing responsibility and preventing denial of actions (logs, electronic signature).\n6. Physical security – protection of servers, computers, and facilities.\n7. Risk management – identification, evaluation, and mitigation of risks."
+  },
+  {
+    "id": "cybersec_threat_vs_vulnerability",
+    "question": "What is the difference between a threat, a vulnerability, and a risk?",
+    "answer": "Vulnerability: a weakness in a system.\nThreat: a potential event that could exploit a vulnerability.\nRisk: the likelihood and impact of a threat exploiting a vulnerability."
+  },
+  {
+    "id": "cybersec_vulnerability_sources",
+    "question": "What are the main sources of a vulnerability in a computer system?",
+    "answer": "Vulnerabilities mostly result from programming errors:\n- An application bug at runtime.\n- A logic error at the design level.\n- Poor input validation.\n- The use of a vulnerable dependency during development."
+  },
+  {
+    "id": "cybersec_zero_day",
+    "question": "What is a 'zero day' vulnerability and what is its lifecycle?",
+    "answer": "A zero day vulnerability is a flaw discovered in a system. The system is vulnerable from that moment on.\nLifecycle: 0 day (discovery) → Disclosure (made public) → Fix (patch available).\nThe system remains vulnerable during the entire period between discovery and the fix."
+  },
+  {
+    "id": "dos_types",
+    "question": "What is the difference between a DoS and a DDoS attack?",
+    "answer": "DoS (Denial of Service): one attacker overwhelms a target to make it unavailable.\nDDoS (Distributed DoS): many machines (often a botnet) simultaneously flood the target — much harder to block because traffic comes from many IPs."
+  },
+  {
+    "id": "recon_ethical_hacker",
+    "question": "What is an Ethical Hacker (White Hat) and how do they differ from a Black Hat?",
+    "answer": "An Ethical Hacker (White Hat) is a computer security expert who performs systematic penetration tests (pentests) on a system AT THE REQUEST OF THE SYSTEM OWNER.\nThey use the SAME techniques as a Black Hat, but the goal is to find vulnerabilities and propose solutions. They document their work and present a report.\nBlack Hat: exploits vulnerabilities with malicious intent, often for personal gain."
+  },
+  {
+    "id": "recon_footprint_vs_scanning",
+    "question": "What are the two parts of the reconnaissance phase? What is the difference between them?",
+    "answer": "1. Information gathering (footprint): obtain as much public data as possible. This is legal and generally easy to find.\n2. Scanning: more precise analysis of systems (e.g. open ports). Also legal, but some tools generate a lot of noise that can attract attention."
+  },
+  {
+    "id": "recon_informations_cible",
+    "question": "What categories of information are sought about a target during reconnaissance?",
+    "answer": "- IP address and role of each machine on the network.\n- Open ports and services running on a machine.\n- Operating system of the machines.\n- Software in use and their versions.\n- For web targets: programming language and framework used."
+  },
+  {
+    "id": "recon_nmap_os_dnsenum",
+    "question": "What do the commands 'nmap -O <ip>' and 'dnsenum <domain>' do?",
+    "answer": "nmap -O <ip>: attempts to identify the operating system of the target machine with a confidence percentage. Can be combined with -sS and /24.\ndnsenum <domain>: retrieves DNS server information in a single command (available by default on Kali Linux)."
+  },
+  {
+    "id": "recon_nmap_stealth",
+    "question": "What does the command 'nmap -sS 206.167.241.130/24' do? What are stealth mode and /24?",
+    "answer": "This command scans all machines on the 206.167.241.x subnet (1 to 255) and displays their open ports.\n-sS (stealth): modifies the source IP address to avoid attracting attention — useful because this is equivalent to knocking on every door in a neighborhood.\n/24: instructs nmap to try all addresses in the 206.167.241.x network."
+  },
+  {
+    "id": "recon_nslookup_mx",
+    "question": "How do you use nslookup to find a domain's mail server?",
+    "answer": "$ nslookup\n> set type=MX\n> cegeplabs.qc.ca\n\nThe MX (Mail eXchanger) record type returns the mail server(s) associated with the domain.\nResult example: cegeplabs.qc.ca mail exchanger = 10 mail.cegeplabs.qc.ca."
+  },
+  {
+    "id": "recon_outil_ping_nmap",
+    "question": "What are the ping and nmap tools used for during reconnaissance?",
+    "answer": "ping: a simple tool available to everyone that checks whether a host is active and can resolve a domain name to an IP address.\nnmap: determines the open ports of a machine and can identify all machines on a network (depending on usage)."
+  },
+  {
+    "id": "recon_outils_autres",
+    "question": "What are dnsenum, wireshark, nikto, and whois used for?",
+    "answer": "dnsenum: retrieves multiple pieces of DNS server information in a single command.\nwireshark: provides extremely detailed analysis of network traffic.\nnikto: a specialized web server scanner that attempts to detect as much information as possible and checks many configurations.\nwhois: retrieves public information about domain names."
+  },
+  {
+    "id": "recon_passive_vs_active",
+    "question": "What is the difference between passive and active reconnaissance?",
+    "answer": "Passive: gathering information without directly interacting with the target (e.g. OSINT, WHOIS, DNS lookups).\nActive: directly probing the target (e.g. port scanning with nmap), which can be detected."
+  },
+  {
+    "id": "recon_phases_methodologie",
+    "question": "What are the 5 phases of the security vulnerability analysis methodology?",
+    "answer": "1. Reconnaissance: analyze public information about the system (OS, ports, services, DNS, etc.).\n2. Vulnerability identification: use reconnaissance data to find flaws in the system.\n3. Exploitation: exploit vulnerabilities to confirm real risk and gain/maintain access.\n4. Covering tracks: remain as silent as possible (especially for black hats).\n5. Reporting: for legitimate analysts, explain the weaknesses and propose solutions."
+  },
+  {
+    "id": "recon_ports_serveurs",
+    "question": "What are the standard ports for Web, FTP, DNS, and Email servers?",
+    "answer": "- Web: port 80 (http) and 443 (https)\n- FTP: port 21\n- DNS: port 53\n- Email: port 25 (smtp) and port 110 (pop3)"
+  },
+  {
+    "id": "recon_techniques_externes",
+    "question": "What external sources can be exploited during the reconnaissance phase?",
+    "answer": "- Phone (social engineering)\n- Public website\n- Email headers\n- Search engines (anywho, spokeo, yasni)\n- URL analysis\n- Financial records (if the company is public)\n- Job postings (reveals technologies used)\n- Public web archives\n- Google Earth (view physical building entrances)\n- Employee LinkedIn profiles"
+  },
+  {
+    "id": "recon_techniques_internes",
+    "question": "What reconnaissance techniques can be used with physical internal access to a company?",
+    "answer": "- Internal DNS structure (Active Directory, LDAP, etc.)\n- Private intranet site (may contain a lot of company information)\n- Dumpster diving (searching through trash)\n- Shoulder surfing attack (observing screens at reception)\n- Eavesdropping (listening in cafeterias, restaurants, etc.)"
+  },
+  {
+    "id": "recon_trois_types_pirates",
+    "question": "What are the three types of hackers and their characteristics?",
+    "answer": "Black Hat: exploits vulnerabilities with malicious intent, often for personal gain.\nGray Hat: sometimes breaks laws and ethics, but does not have the malicious intent of a Black Hat.\nWhite Hat: a security expert specialized in penetration testing who offers their services to improve organizational security."
+  },
+  {
+    "id": "regex_basic",
+    "question": "What does the regular expression ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$ match?",
+    "answer": "It matches a basic email address format:\n- ^ and $ anchor to start/end of string\n- [a-zA-Z0-9._%+-]+ matches the local part (before @)\n- @ literal at-sign\n- [a-zA-Z0-9.-]+ matches the domain name\n- \\.[a-zA-Z]{2,} matches the TLD (e.g. .com, .ca) with at least 2 letters"
+  },
+  {
+    "id": "session_lifecycle",
+    "question": "Describe the lifecycle of a web session (from login to logout).",
+    "answer": "1. User logs in with credentials.\n2. Server validates credentials, creates a session, stores session data server-side.\n3. Server sends a session ID to the client (usually via a cookie).\n4. Client sends the session ID with each request; server looks it up to identify the user.\n5. On logout (or timeout), the server invalidates/deletes the session."
+  },
+  {
+    "id": "tls_handshake",
+    "question": "Summarize what happens during a TLS handshake.",
+    "answer": "1. Client Hello: client sends supported TLS versions and cipher suites.\n2. Server Hello: server picks a cipher suite, sends its certificate.\n3. Client verifies the server's certificate against a trusted CA.\n4. Key exchange: they agree on a shared session key (using asymmetric crypto — e.g. ECDHE).\n5. Both sides confirm (\"Finished\"), then switch to symmetric encryption for the session."
+  },
+  {
+    "id": "xss_types",
+    "question": "What are the three main types of XSS (Cross-Site Scripting) attacks?",
+    "answer": "1. Reflected XSS: malicious script is in the URL/request and reflected back in the response (not stored).\n2. Stored/Persistent XSS: script is saved in the database and served to all users who load that page.\n3. DOM-based XSS: the vulnerability is in client-side JavaScript that writes attacker-controlled data into the DOM."
+  }
+]
